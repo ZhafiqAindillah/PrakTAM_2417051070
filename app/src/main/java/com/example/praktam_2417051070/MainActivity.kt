@@ -40,9 +40,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.example.praktam_2417051070.ui.theme.HobiMatchTheme
 import model.HobiMatch
 import model.HobiMatchSource
 
@@ -50,9 +49,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme {
+            HobiMatchTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
                 ) {
                     DaftarHobiScreen()
                 }
@@ -71,8 +71,8 @@ fun DaftarHobiScreen() {
         item {
             Text(
                 text = "HobiMatch",
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.primary
             )
         }
 
@@ -80,8 +80,7 @@ fun DaftarHobiScreen() {
             Column {
                 Text(
                     text = "Rekomendasi Populer",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 LazyRow(
@@ -91,11 +90,10 @@ fun DaftarHobiScreen() {
                         HobiRowItem(hobi = hobi)
                     }
                 }
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "Daftar Komunitas Lengkap",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
             }
@@ -112,7 +110,10 @@ fun HobiRowItem(hobi: HobiMatch) {
     Card(
         modifier = Modifier.width(160.dp),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
         Column {
             Image(
@@ -126,14 +127,13 @@ fun HobiRowItem(hobi: HobiMatch) {
             Column(modifier = Modifier.padding(8.dp)) {
                 Text(
                     text = hobi.nama,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.bodyMedium,
                     maxLines = 1
                 )
                 Text(
                     text = hobi.kategori,
-                    fontSize = 12.sp,
-                    color = Color(0xFF0D6EFD)
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.secondary
                 )
             }
         }
@@ -178,23 +178,26 @@ fun DetailHobiScreen(hobi: HobiMatch) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = hobi.nama,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = hobi.deskripsi,
-                    fontSize = 14.sp
+                    style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Button(
                     onClick = { },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF0D6EFD)
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 ) {
-                    Text(text = "Gabung Komunitas")
+                    Text(
+                        text = "Gabung Komunitas",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
         }
