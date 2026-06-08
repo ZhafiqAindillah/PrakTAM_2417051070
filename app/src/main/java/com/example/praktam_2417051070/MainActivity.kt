@@ -3,7 +3,6 @@ package com.example.praktam_2417051070
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,11 +49,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.praktam_2417051070.data.model.HobiMatch
+import com.example.praktam_2417051070.data.repository.HobiRepository
 import com.example.praktam_2417051070.ui.theme.HobiMatchTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import model.HobiMatch
-import model.HobiMatchSource
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,20 +73,21 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun DaftarHobiScreen() {
+    val repository = remember { HobiRepository() }
     var isLoadingData by remember { mutableStateOf(true) }
     var isErrorData by remember { mutableStateOf(false) }
     var hobiList by remember { mutableStateOf<List<HobiMatch>>(emptyList()) }
 
     LaunchedEffect(Unit) {
-        try {
-            delay(1500)
-            hobiList = HobiMatchSource.dummyHobiMatch
-            isLoadingData = false
-            isErrorData = false
-        } catch (e: Exception) {
-            isLoadingData = false
+        isLoadingData = true
+        val response = repository.getHobiData()
+        if (response.isEmpty()) {
             isErrorData = true
+        } else {
+            hobiList = response
+            isErrorData = false
         }
+        isLoadingData = false
     }
 
     if (isLoadingData) {
@@ -113,7 +113,7 @@ fun DaftarHobiScreen() {
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Pastikan koneksi internet Anda menyala",
+                    text = "Gagal memuat data, periksa koneksi internet",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray,
                     textAlign = TextAlign.Center,
