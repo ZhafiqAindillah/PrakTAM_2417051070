@@ -3,7 +3,7 @@ package com.example.praktam_2417051070
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +35,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,7 +46,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.praktam_2417051070.ui.theme.HobiMatchTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -70,44 +74,93 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun DaftarHobiScreen() {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        item {
-            Text(
-                text = "HobiMatch",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
+    var isLoadingData by remember { mutableStateOf(true) }
+    var isErrorData by remember { mutableStateOf(false) }
+    var hobiList by remember { mutableStateOf<List<HobiMatch>>(emptyList()) }
 
-        item {
-            Column {
+    LaunchedEffect(Unit) {
+        try {
+            delay(1500)
+            hobiList = HobiMatchSource.dummyHobiMatch
+            isLoadingData = false
+            isErrorData = false
+        } catch (e: Exception) {
+            isLoadingData = false
+            isErrorData = true
+        }
+    }
+
+    if (isLoadingData) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+        }
+    } else if (isErrorData || hobiList.isEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(32.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = "Rekomendasi Populer",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    text = "Gagal Memuat Data",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Red
                 )
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(HobiMatchSource.dummyHobiMatch) { hobi ->
-                        HobiRowItem(hobi = hobi)
-                    }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Daftar Komunitas Lengkap",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = 4.dp)
+                    text = "Pastikan koneksi internet Anda menyala",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item {
+                Text(
+                    text = "HobiMatch",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
 
-        items(HobiMatchSource.dummyHobiMatch) { hobi ->
-            DetailHobiScreen(hobi)
+            item {
+                Column {
+                    Text(
+                        text = "Rekomendasi Populer",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(hobiList) { hobi ->
+                            HobiRowItem(hobi = hobi)
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Daftar Komunitas Lengkap",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                }
+            }
+
+            items(hobiList) { hobi ->
+                DetailHobiScreen(hobi)
+            }
         }
     }
 }
@@ -123,9 +176,11 @@ fun HobiRowItem(hobi: HobiMatch) {
         )
     ) {
         Column {
-            Image(
-                painter = painterResource(id = hobi.imageRes),
+            AsyncImage(
+                model = hobi.imageUrl,
                 contentDescription = hobi.nama,
+                placeholder = painterResource(id = R.drawable.gamingbersama),
+                error = painterResource(id = R.drawable.klubmembaca),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(100.dp),
@@ -165,9 +220,11 @@ fun DetailHobiScreen(hobi: HobiMatch) {
         ) {
             Column {
                 Box {
-                    Image(
-                        painter = painterResource(id = hobi.imageRes),
+                    AsyncImage(
+                        model = hobi.imageUrl,
                         contentDescription = hobi.nama,
+                        placeholder = painterResource(id = R.drawable.gamingbersama),
+                        error = painterResource(id = R.drawable.klubmembaca),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(200.dp),
